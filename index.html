@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CivicPriority AI — Smart Triage, Community Voting & Authorized Resolution Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-canvas: #f8fafc;
+  --bg-card: #ffffff;
+  --ink-primary: #09131e;
+  --ink-secondary: #475569;
+  --ink-muted: #94a3b8;
+  --border-light: #e2e8f0;
+  
+  /* Vibrant Domain Palette */
+  --c-roads: #f97316;
+  --c-roads-bg: #fff7ed;
+  --c-roads-border: #fed7aa;
+  
+  --c-water: #0284c7;
+  --c-water-bg: #f0f9ff;
+  --c-water-border: #bae6fd;
+  
+  --c-electric: #8b5cf6;
+  --c-electric-bg: #faf5ff;
+  --c-electric-border: #ddd6fe;
+  
+  --c-sanitation: #10b981;
+  --c-sanitation-bg: #ecfdf5;
+  --c-sanitation-border: #a7f3d0;
+  
+  --c-safety: #f43f5e;
+  --c-safety-bg: #fff1f2;
+  --c-safety-border: #fecdd3;
+
+  /* Solved Green Theme */
+  --c-solved: #059669;
+  --c-solved-bg: #ecfdf5;
+  --c-solved-border: #6ee7b7;
+
+  /* Priority Jewel Shades */
+  --p-high: #ef4444;
+  --p-high-bg: #fee2e2;
+  --p-med: #f59e0b;
+  --p-med-bg: #fef3c7;
+  --p-low: #10b981;
+  --p-low-bg: #d1fae5;
+
+  /* Brand Accents */
+  --brand-gradient: linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #8b5cf6 100%);
+  --brand-navy: #0b1528;
+  --brand-cyan: #06b6d4;
+  --radius-xl: 20px;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --shadow-sm: 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 12px 24px -8px rgba(15, 23, 42, 0.08), 0 4px 8px -4px rgba(15, 23, 42, 0.04);
+  --shadow-glow: 0 0 40px -10px rgba(99, 102, 241, 0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--ink-secondary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(14, 165, 233, 0.07) 0px, transparent 50%),
+    radial-gradient(at 90% 20%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(16, 185, 129, 0.06) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+a { color: inherit; text-decoration: none; }
+button, input, textarea { font: inherit; color: inherit; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+
+.text-gradient {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* NAVBAR */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+}
+.nav-wrap {
+  height: 84px; display: flex; align-items: center; justify-content: space-between;
+}
+.brand-logo {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 21px; font-weight: 800; color: var(--brand-navy);
+}
+.logo-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: var(--brand-gradient);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; box-shadow: 0 6px 14px -3px rgba(99, 102, 241, 0.45);
+}
+nav.nav-links { display: flex; gap: 28px; font-weight: 600; font-size: 15px; color: var(--ink-secondary); align-items: center; }
+nav.nav-links a { transition: color 0.2s; }
+nav.nav-links a:hover { color: var(--brand-navy); }
+
+/* Solved Counter Badge in Nav */
+.nav-solved-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 99px;
+  background: var(--c-solved-bg); color: var(--c-solved);
+  border: 1px solid var(--c-solved-border); font-weight: 700; font-size: 13px;
+}
+
+/* Vercel Officer Access Indicator */
+.officer-auth-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 99px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  border: 1px solid #cbd5e1; background: #f8fafc; color: var(--ink-secondary);
+  transition: all 0.2s;
+}
+.officer-auth-pill.authorized {
+  background: #0f172a; color: #38bdf8; border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+}
+.officer-auth-pill .dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #94a3b8;
+}
+.officer-auth-pill.authorized .dot {
+  background: #38bdf8; box-shadow: 0 0 8px #38bdf8;
+}
+
+.nav-cta {
+  background: var(--brand-gradient);
+  color: #fff; font-weight: 700; font-size: 14px;
+  padding: 10px 22px; border-radius: 99px; border: none; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(99, 102, 241, 0.45); }
+
+/* HERO */
+.hero { padding: 80px 0 60px; position: relative; }
+.hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 48px; align-items: center; }
+.hero-content { display: flex; flex-direction: column; gap: 20px; }
+.pill-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 99px;
+  background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #4f46e5; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  width: fit-content;
+}
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #6366f1; animation: pulseRing 1.8s infinite; }
+@keyframes pulseRing {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+h1.hero-title {
+  font-size: 52px; line-height: 1.12; font-weight: 800;
+  color: var(--brand-navy); letter-spacing: -1.6px;
+}
+.hero-sub { font-size: 18px; line-height: 28px; color: #475569; max-width: 580px; }
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+.btn-primary {
+  background: var(--brand-navy); color: #fff; font-weight: 700;
+  padding: 14px 28px; border-radius: 12px; cursor: pointer; border: none;
+  box-shadow: 0 10px 20px -5px rgba(11, 21, 40, 0.35); transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { transform: translateY(-2px); background: #16243d; }
+.btn-secondary {
+  background: #fff; color: var(--brand-navy); font-weight: 700;
+  padding: 14px 26px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-2px); }
+
+/* HERO GLASS CARD */
+.hero-glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-xl);
+  padding: 28px; box-shadow: var(--shadow-md), var(--shadow-glow);
+  position: relative;
+}
+.preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.live-chip {
+  background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;
+  font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 99px;
+  display: inline-flex; align-items: center; gap: 5px; text-transform: uppercase;
+}
+.live-chip span { width: 6px; height: 6px; background: #10b981; border-radius: 50%; }
+
+.ai-meta-banner {
+  background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
+  border: 1px solid #dbeafe; border-radius: var(--radius-md);
+  padding: 14px 16px; margin: 16px 0; display: flex; justify-content: space-between; align-items: center;
+}
+
+/* REGISTRY VIEW SECTIONS */
+.registry-section { padding: 80px 0; }
+.section-head { text-align: center; max-width: 820px; margin: 0 auto 40px; }
+.section-tag {
+  color: #6366f1; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+}
+.section-title {
+  font-size: 38px; font-weight: 800; color: var(--brand-navy); letter-spacing: -1.2px; margin: 8px 0 12px;
+}
+.section-desc { font-size: 16px; color: var(--ink-secondary); }
+
+/* MAIN CATEGORY TABS: DOMAINS + SEPARATE SOLVED TAB */
+.main-view-tabs {
+  display: flex; justify-content: center; gap: 12px; margin-bottom: 30px;
+}
+.view-mode-btn {
+  background: #ffffff; border: 2px solid #e2e8f0;
+  padding: 10px 24px; border-radius: 99px; font-weight: 700; font-size: 15px;
+  color: var(--ink-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: var(--shadow-sm); transition: all 0.2s;
+}
+.view-mode-btn:hover { border-color: #cbd5e1; color: var(--brand-navy); }
+.view-mode-btn.active {
+  background: var(--brand-navy); color: #ffffff; border-color: var(--brand-navy);
+  box-shadow: 0 8px 20px -4px rgba(11, 21, 40, 0.3);
+}
+.view-mode-btn.active.solved-mode {
+  background: var(--c-solved); border-color: var(--c-solved);
+  box-shadow: 0 8px 20px -4px rgba(5, 150, 105, 0.35);
+}
+
+/* 5 VIBRANT DOMAIN SWITCHER BUTTONS */
+.domain-tabs-row {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 28px;
+}
+.dom-btn {
+  background: #ffffff; border: 2px solid transparent;
+  border-radius: var(--radius-lg); padding: 16px 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+}
+.dom-btn:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.dom-btn.active { transform: translateY(-4px); box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.12); }
+
+.dom-icon-bubble {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.dom-btn .dom-title { font-weight: 700; font-size: 13px; text-align: center; color: var(--brand-navy); }
+.dom-counter {
+  font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 99px;
+}
+
+.dom-btn[data-domain="roads"] .dom-icon-bubble { background: var(--c-roads-bg); color: var(--c-roads); }
+.dom-btn[data-domain="roads"].active { border-color: var(--c-roads); background: linear-gradient(to bottom, #ffffff, #fff7ed); }
+.dom-btn[data-domain="roads"] .dom-counter { background: var(--c-roads-bg); color: var(--c-roads); border: 1px solid var(--c-roads-border); }
+
+.dom-btn[data-domain="water"] .dom-icon-bubble { background: var(--c-water-bg); color: var(--c-water); }
+.dom-btn[data-domain="water"].active { border-color: var(--c-water); background: linear-gradient(to bottom, #ffffff, #f0f9ff); }
+.dom-btn[data-domain="water"] .dom-counter { background: var(--c-water-bg); color: var(--c-water); border: 1px solid var(--c-water-border); }
+
+.dom-btn[data-domain="electric"] .dom-icon-bubble { background: var(--c-electric-bg); color: var(--c-electric); }
+.dom-btn[data-domain="electric"].active { border-color: var(--c-electric); background: linear-gradient(to bottom, #ffffff, #faf5ff); }
+.dom-btn[data-domain="electric"] .dom-counter { background: var(--c-electric-bg); color: var(--c-electric); border: 1px solid var(--c-electric-border); }
+
+.dom-btn[data-domain="sanitation"] .dom-icon-bubble { background: var(--c-sanitation-bg); color: var(--c-sanitation); }
+.dom-btn[data-domain="sanitation"].active { border-color: var(--c-sanitation); background: linear-gradient(to bottom, #ffffff, #ecfdf5); }
+.dom-btn[data-domain="sanitation"] .dom-counter { background: var(--c-sanitation-bg); color: var(--c-sanitation); border: 1px solid var(--c-sanitation-border); }
+
+.dom-btn[data-domain="safety"] .dom-icon-bubble { background: var(--c-safety-bg); color: var(--c-safety); }
+.dom-btn[data-domain="safety"].active { border-color: var(--c-safety); background: linear-gradient(to bottom, #ffffff, #fff1f2); }
+.dom-btn[data-domain="safety"] .dom-counter { background: var(--c-safety-bg); color: var(--c-safety); border: 1px solid var(--c-safety-border); }
+
+/* BOARD CONTAINER & SORTING CONTROLS */
+.board-wrapper {
+  background: #ffffff; border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light); box-shadow: var(--shadow-md);
+  padding: 30px;
+}
+.board-header-bar {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  padding-bottom: 20px; border-bottom: 1px solid var(--border-light); margin-bottom: 22px;
+}
+.active-domain-info { display: flex; align-items: center; gap: 14px; }
+.active-domain-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.active-domain-meta h3 { font-size: 20px; font-weight: 800; color: var(--brand-navy); }
+.active-domain-meta p { font-size: 13px; color: var(--ink-secondary); }
+
+/* Sort Toolbar */
+.sort-toolbar {
+  display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 4px; border-radius: 12px;
+}
+.sort-label {
+  font-size: 12px; font-weight: 700; color: #64748b; padding: 0 8px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.sort-btn {
+  background: transparent; border: none; padding: 6px 14px; border-radius: 8px;
+  font-size: 13px; font-weight: 700; color: #475569; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+}
+.sort-btn:hover { color: var(--brand-navy); }
+.sort-btn.active {
+  background: #ffffff; color: var(--brand-navy); box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.sort-btn.active svg { color: #6366f1; }
+
+/* COMPLAINTS LIST CARDS */
+.complaints-grid { display: flex; flex-direction: column; gap: 16px; }
+.problem-card {
+  border: 1px solid #e2e8f0; border-radius: var(--radius-lg);
+  padding: 20px; background: #ffffff;
+  display: grid; grid-template-columns: 80px 150px 1fr 185px; gap: 20px;
+  align-items: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.problem-card:hover {
+  transform: translateY(-2px); border-color: #cbd5e1;
+  box-shadow: 0 10px 22px -5px rgba(15, 23, 42, 0.08);
+}
+
+/* VOTE SECTION */
+.vote-box {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 10px 6px; min-width: 74px; height: 104px;
+  transition: all 0.2s; user-select: none;
+}
+.vote-box:hover { border-color: #cbd5e1; background: #f1f5f9; }
+.vote-btn {
+  background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px;
+  width: 36px; height: 32px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #64748b; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.vote-btn:hover { transform: translateY(-2px); border-color: #6366f1; color: #6366f1; }
+.vote-btn.voted {
+  background: #6366f1; color: #ffffff; border-color: #6366f1;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.35); transform: translateY(-1px);
+}
+.vote-count-number {
+  font-size: 16px; font-weight: 800; color: var(--brand-navy); margin-top: 5px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.vote-subtext { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; }
+
+/* PHOTO EVIDENCE THUMBNAIL */
+.photo-thumb-container {
+  width: 100%; height: 110px; border-radius: var(--radius-md);
+  overflow: hidden; position: relative; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08); background: #0f172a;
+}
+.photo-thumb-container img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.3s;
+}
+.photo-thumb-container:hover img { transform: scale(1.08); }
+.photo-badge-overlay {
+  position: absolute; bottom: 6px; right: 6px;
+  background: rgba(11, 21, 40, 0.85); backdrop-filter: blur(4px);
+  color: #fff; font-size: 10px; font-weight: 700;
+  padding: 3px 7px; border-radius: 6px; display: flex; align-items: center; gap: 4px;
+}
+
+/* REPORT DETAILS WITH LOCATION SYMBOL & BADGE */
+.card-center-col { display: flex; flex-direction: column; gap: 6px; }
+.card-problem-title {
+  font-size: 17px; font-weight: 800; color: var(--brand-navy);
+}
+
+/* REQUIRED: Distinctive Symbol / Indication near Place Name */
+.location-indicator-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;
+  font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 6px;
+  width: fit-content;
+}
+.geo-symbol-ring {
+  width: 8px; height: 8px; border-radius: 50%; background: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  display: inline-block;
+}
+
+.card-loc-meta {
+  font-size: 13px; color: var(--ink-secondary);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 2px;
+}
+.card-desc-body { font-size: 14px; line-height: 22px; color: #475569; }
+.dept-pill {
+  font-size: 11px; font-weight: 700; background: #f8fafc; border: 1px solid #e2e8f0;
+  color: #334155; padding: 4px 10px; border-radius: 6px; width: fit-content;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+
+/* PRIORITY & AUTHORIZED OFFICER ACTIONS */
+.card-aside-col {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+.jewel-priority {
+  padding: 5px 12px; border-radius: 99px; font-size: 11px; font-weight: 800;
+  display: inline-flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.jewel-high { background: var(--p-high-bg); color: var(--p-high); border: 1px solid #fca5a5; }
+.jewel-med { background: var(--p-med-bg); color: #b45309; border: 1px solid #fde68a; }
+.jewel-low { background: var(--p-low-bg); color: #047857; border: 1px solid #6ee7b7; }
+.jewel-solved { background: var(--c-solved-bg); color: var(--c-solved); border: 1px solid var(--c-solved-border); }
+
+.btn-inspect-ev {
+  background: #f8fafc; border: 1px solid #cbd5e1;
+  color: var(--brand-navy); font-size: 12px; font-weight: 700;
+  padding: 6px 12px; border-radius: 8px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s;
+}
+.btn-inspect-ev:hover { background: #e2e8f0; }
+
+/* REQUIRED: Authorized User "Mark Solved" Button */
+.btn-mark-solved {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff; border: none; font-size: 12px; font-weight: 800;
+  padding: 8px 14px; border-radius: 8px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3); transition: all 0.2s;
+}
+.btn-mark-solved:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(5, 150, 105, 0.4); }
+
+.restricted-lock-note {
+  font-size: 11px; color: #94a3b8; font-weight: 600; text-align: right;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+
+/* SEPARATE HEADING FOR SOLVED PROBLEMS */
+.solved-hero-banner {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+  border-radius: var(--radius-lg); padding: 24px; color: #ecfdf5; margin-bottom: 24px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+}
+.solved-stamp {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+  padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 800;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+
+/* INTAKE FORM */
+.form-section {
+  padding: 96px 0;
+  background: linear-gradient(180deg, #0b1528 0%, #060d19 100%);
+  color: #f8fafc; position: relative; overflow: hidden;
+}
+.form-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 56px; align-items: start; }
+.form-info-col h2 {
+  font-size: 44px; font-weight: 800; color: #ffffff; letter-spacing: -1px; margin-bottom: 16px;
+}
+.form-info-col p { font-size: 17px; line-height: 28px; color: #94a3b8; }
+.feature-list { display: flex; flex-direction: column; gap: 20px; margin-top: 36px; }
+.feature-item { display: flex; gap: 14px; align-items: flex-start; }
+.feature-icon-box {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #a5b4fc; display: flex; align-items: center; justify-content: center; flex: none;
+}
+.feature-item b { color: #ffffff; display: block; font-size: 15px; margin-bottom: 2px; }
+.feature-item span { font-size: 14px; color: #94a3b8; }
+
+/* FORM CARD */
+.glass-form-card {
+  background: #ffffff; border-radius: 24px; padding: 40px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
+  color: var(--ink-secondary);
+}
+.form-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.form-group label {
+  font-size: 13px; font-weight: 700; color: var(--brand-navy);
+  display: flex; justify-content: space-between;
+}
+.form-group label span.req { color: #ef4444; }
+
+.input-box { position: relative; }
+.input-box svg.inp-icon {
+  position: absolute; left: 14px; top: 14px; width: 18px; height: 18px; color: #94a3b8; pointer-events: none;
+}
+.input-box input, .input-box textarea {
+  width: 100%; background: #f8fafc; border: 1px solid #cbd5e1;
+  border-radius: 10px; padding: 12px 14px 12px 42px; font-size: 14px; color: var(--ink-primary);
+  transition: all 0.2s;
+}
+.input-box textarea { padding-left: 42px; min-height: 96px; resize: vertical; line-height: 22px; }
+.input-box input:focus, .input-box textarea:focus {
+  background: #ffffff; border-color: #6366f1; outline: none; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* DROPZONE */
+.photo-dropzone {
+  border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px;
+  background: #f8fafc; text-align: center; cursor: pointer; position: relative;
+  transition: all 0.2s;
+}
+.photo-dropzone:hover { border-color: #6366f1; background: #f5f3ff; }
+.photo-dropzone input[type="file"] {
+  position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+}
+.drop-content { display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; }
+.drop-icon-circle {
+  width: 44px; height: 44px; border-radius: 50%; background: #eff6ff;
+  color: #2563eb; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;
+}
+
+.photo-preview-box {
+  display: none; position: relative; border-radius: 12px; overflow: hidden;
+  margin-top: 10px; background: #000; border: 1px solid #cbd5e1; max-height: 180px;
+}
+.photo-preview-box img { width: 100%; height: 180px; object-fit: cover; opacity: 0.92; }
+.btn-del-photo {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px);
+  color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: background 0.2s;
+}
+.btn-del-photo:hover { background: #ef4444; }
+
+.btn-submit-complaint {
+  width: 100%; background: var(--brand-gradient); color: #fff;
+  border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4); transition: all 0.2s;
+}
+.btn-submit-complaint:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -4px rgba(99, 102, 241, 0.5); }
+.btn-submit-complaint:disabled { opacity: 0.6; cursor: wait; }
+
+.error-msg {
+  display: none; background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b;
+  padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 14px;
+}
+
+/* SUCCESS CARD */
+.success-card {
+  display: none; text-align: center; flex-direction: column; align-items: center; gap: 16px; padding: 20px 0;
+}
+.success-icon-wrap {
+  width: 64px; height: 64px; border-radius: 20px; background: #ecfdf5;
+  color: #059669; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+}
+.result-breakdown {
+  width: 100%; background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md); padding: 18px; text-align: left;
+  display: flex; flex-direction: column; gap: 8px; font-size: 14px;
+}
+
+/* VERCEL PUBLISHER AUTHENTICATION DIALOG (REQUIRED) */
+.auth-modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(9, 19, 30, 0.85);
+  backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+}
+.auth-modal-overlay.open { display: flex; }
+.auth-card {
+  background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%;
+  padding: 32px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); position: relative;
+}
+.auth-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.vercel-logo-icon {
+  width: 36px; height: 36px; background: #000; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+}
+
+/* EVIDENCE MODAL */
+.modal-backdrop {
+  display: none; position: fixed; inset: 0; background: rgba(9, 19, 30, 0.82);
+  backdrop-filter: blur(8px); z-index: 999; align-items: center; justify-content: center; padding: 24px;
+}
+.modal-backdrop.open { display: flex; }
+.modal-window {
+  background: #ffffff; border-radius: var(--radius-xl); max-width: 820px; width: 100%;
+  overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.4); animation: modalZoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalZoom {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.modal-top {
+  padding: 16px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-top h4 { font-size: 17px; font-weight: 800; color: var(--brand-navy); }
+.modal-close-btn {
+  background: transparent; border: none; font-size: 24px; color: #64748b; cursor: pointer; line-height: 1;
+}
+.modal-body-layout { padding: 24px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+.modal-photo-frame {
+  width: 100%; height: 290px; background: #000; border-radius: var(--radius-md); overflow: hidden;
+}
+.modal-photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+.modal-details-col { display: flex; flex-direction: column; gap: 12px; }
+
+/* SVG ICON HELPER */
+.icon-svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .hero-grid, .form-grid { grid-template-columns: 1fr; }
+  .domain-tabs-row { grid-template-columns: repeat(3, 1fr); }
+  .problem-card { grid-template-columns: 76px 130px 1fr; }
+  .card-aside-col { grid-column: span 3; flex-direction: row; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px; }
+}
+@media (max-width: 640px) {
+  .domain-tabs-row { grid-template-columns: repeat(2, 1fr); }
+  .form-two-col { grid-template-columns: 1fr; }
+  .problem-card { grid-template-columns: 1fr; }
+  .vote-box { flex-direction: row; justify-content: space-between; height: auto; padding: 10px 16px; }
+  .photo-thumb-container { height: 180px; }
+  .card-aside-col { grid-column: span 1; }
+  .modal-body-layout { grid-template-columns: 1fr; }
+  h1.hero-title { font-size: 38px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG SYMBOL BANK -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="icon-road" viewBox="0 0 24 24"><path d="M4 22 8 2M20 22 16 2M12 6v2M12 12v2M12 18v2"/></symbol>
+    <symbol id="icon-water" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7Z"/></symbol>
+    <symbol id="icon-bolt" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="icon-safety" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="icon-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="icon-arrow-up" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="icon-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+    <symbol id="icon-mail" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol>
+    <symbol id="icon-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="icon-vercel" viewBox="0 0 24 24"><polygon points="12 2 24 22 0 22"/></symbol>
+  </defs>
+</svg>
+
+<!-- HEADER -->
+<header>
+  <div class="wrap nav-wrap">
+    <a href="#top" class="brand-logo font-display">
+      <div class="logo-icon">
+        <svg class="icon-svg" style="width:22px;height:22px"><use href="#icon-safety"/></svg>
+      </div>
+      CivicPriority <span class="text-gradient">AI</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="#domains" onclick="window.switchMainView('active')">Domain Boards</a>
+      <a href="#domains" class="nav-solved-link" onclick="window.switchMainView('solved')">
+        <svg class="icon-svg" style="width:14px;height:14px"><use href="#icon-check"/></svg>
+        Solved Problems (<span id="navSolvedCount">0</span>)
+      </a>
+      <a href="#report">Report Issue</a>
+    </nav>
+
+    <!-- Vercel Account Publisher / Officer Access Switcher -->
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="officer-auth-pill" id="officerAuthBtn" onclick="window.openAuthModal()">
+        <span class="dot"></span>
+        <span id="officerStatusText">Officer Login</span>
+      </button>
+
+      <a href="#report" class="nav-cta">
+        File Complaint
+        <svg class="icon-svg"><use href="#icon-arrow-right"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-content">
+      <div class="pill-badge">
+        <div class="pulse-dot"></div>
+        Civic Triage &amp; Certified Resolution Flow
+      </div>
+      <h1 class="hero-title font-display">
+        Civic Issues Classified by AI, <span class="text-gradient">Resolved with Certified Authority.</span>
+      </h1>
+      <p class="hero-sub">
+        Attach photographic proof and localized geo-indicators. Active complaints are ranked by AI severity and citizen votes. Only municipal staff authorized by the <strong>Vercel Site Publisher</strong> hold verified permission to resolve and archive tickets.
+      </p>
+      <div class="hero-actions">
+        <a href="#report" class="btn-primary">
+          <svg class="icon-svg"><use href="#icon-camera"/></svg>
+          Report with Evidence
+        </a>
+        <a href="#domains" class="btn-secondary" onclick="window.switchMainView('solved')">
+          Browse Solved Archive &rarr;
+        </a>
+      </div>
+    </div>
+
+    <!-- HERO SNAPSHOT CARD -->
+    <div class="hero-glass">
+      <div class="preview-header">
+        <div class="live-chip"><span></span> Authorized Queue</div>
+        <span style="font-size:12px;font-weight:700;color:#64748b">Verified Evidence Registry</span>
+      </div>
+      
+      <div style="display:flex;gap:14px;align-items:center;background:#fff;padding:12px;border-radius:12px;border:1px solid #e2e8f0">
+        <div style="width:68px;height:68px;border-radius:10px;background:#0f172a;overflow:hidden;flex:none">
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect fill='%231e293b' width='100' height='100'/><circle cx='50' cy='50' r='28' fill='%230284c7'/><text x='50' y='55' fill='%23ffffff' font-size='10' text-anchor='middle' font-family='sans-serif'>EVIDENCE</text></svg>" style="width:100%;height:100%;object-fit:cover" alt="Mock evidence">
+        </div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;font-weight:800;color:var(--c-roads);text-transform:uppercase">Roads &amp; Safety</span>
+            <span class="jewel-priority jewel-high" style="font-size:10px;padding:2px 8px">High Priority</span>
+          </div>
+          <div style="font-weight:800;font-size:15px;color:var(--brand-navy);margin-top:2px">Arterial Road Cavitation</div>
+          <div style="font-size:12px;color:#64748b">
+            <span class="location-indicator-badge" style="padding:1px 6px;font-size:11px"><span class="geo-symbol-ring"></span> Zone 4 • Sector Elm</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-meta-banner">
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#6366f1;text-transform:uppercase">Role Authority</div>
+          <div style="font-size:14px;font-weight:800;color:var(--brand-navy)" id="heroRoleSnapshot">Citizen Mode (Read Only)</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase">Resolution Access</div>
+          <div style="font-size:14px;font-weight:800;color:var(--c-solved)">Vercel-Delegated Inspector</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOMAIN REGISTRY & SOLVED PROBLEMS -->
+<section class="registry-section" id="domains">
+  <div class="wrap">
+    
+    <!-- MAIN TOP VIEW SWITCHER: ACTIVE ISSUES VS SOLVED PROBLEMS -->
+    <div class="main-view-tabs">
+      <button class="view-mode-btn active font-display" id="tabActiveView" onclick="window.switchMainView('active')">
+        <svg class="icon-svg"><use href="#icon-alert"/></svg>
+        Active Domain Queue
+      </button>
+      <button class="view-mode-btn font-display" id="tabSolvedView" onclick="window.switchMainView('solved')">
+        <svg class="icon-svg"><use href="#icon-check"/></svg>
+        Solved Problems Archive (<span id="mainSolvedCount">0</span>)
+      </button>
+    </div>
+
+    <!-- ACTIVE ISSUES VIEW WRAPPER -->
+    <div id="activeViewContainer">
+      <div class="section-head">
+        <span class="section-tag font-display">Active Municipal Triage</span>
+        <h2 class="section-title font-display">Active Domains Ordered by Priority &amp; Votes</h2>
+        <p class="section-desc">
+          Click any domain below to browse pending issues. Notice the <strong>localized place symbol</strong> on each card. Authorized personnel chosen by the Vercel deployer can click <strong>"Mark as Solved"</strong> to advance issues to the Solved archive.
+        </p>
+      </div>
+
+      <!-- 5 Vibrant Domain Switcher Buttons -->
+      <div class="domain-tabs-row" id="domainTabs" role="tablist">
+        <button class="dom-btn active" data-domain="roads" role="tab" aria-selected="true">
+          <div class="dom-icon-bubble"><svg class="icon-svg" style="width:24px;height:24px"><use href="#icon-road"/></svg></div>
+          <span class="dom-title">Roads &amp; Infra</span>
+          <span class="dom-counter" id="badge-roads">0</span>
+        </button>
+        <button class="dom-btn" data-domain="water" role="tab" aria-selected="false">
+          <div class="dom-icon-bubble"><svg class="icon-svg" style="width:24px;height:24px"><use href="#icon-water"/></svg></div>
+          <span class="dom-title">Water &amp; Drainage</span>
+          <span class="dom-counter" id="badge-water">0</span>
+        </button>
+        <button class="dom-btn" data-domain="electric" role="tab" aria-selected="false">
+          <div class="dom-icon-bubble"><svg class="icon-svg" style="width:24px;height:24px"><use href="#icon-bolt"/></svg></div>
+          <span class="dom-title">Power &amp; Grid</span>
+          <span class="dom-counter" id="badge-electric">0</span>
+        </button>
+        <button class="dom-btn" data-domain="sanitation" role="tab" aria-selected="false">
+          <div class="dom-icon-bubble"><svg class="icon-svg" style="width:24px;height:24px"><use href="#icon-trash"/></svg></div>
+          <span class="dom-title">Waste &amp; Sanitation</span>
+          <span class="dom-counter" id="badge-sanitation">0</span>
+        </button>
+        <button class="dom-btn" data-domain="safety" role="tab" aria-selected="false">
+          <div class="dom-icon-bubble"><svg class="icon-svg" style="width:24px;height:24px"><use href="#icon-safety"/></svg></div>
+          <span class="dom-title">Public Safety</span>
+          <span class="dom-counter" id="badge-safety">0</span>
+        </button>
+      </div>
+
+      <!-- Board Header for Active Queue -->
+      <div class="board-wrapper">
+        <div class="board-header-bar">
+          <div class="active-domain-info">
+            <div class="active-domain-icon" id="domainIconFrame">
+              <svg class="icon-svg" style="width:24px;height:24px"><use href="#icon-road"/></svg>
+            </div>
+            <div class="active-domain-meta">
+              <h3 id="currentDomainTitle">Roads &amp; Infrastructure</h3>
+              <p id="currentDomainSubtitle">Potholes, asphalt failures, and pedestrian walkway concerns.</p>
+            </div>
+          </div>
+
+          <!-- Sort Option Switcher: Priority vs Votes -->
+          <div class="sort-toolbar">
+            <span class="sort-label font-display">Order By:</span>
+            <button class="sort-btn active" id="sortPriorityBtn" onclick="window.setSortMode('priority')">
+              <svg class="icon-svg"><use href="#icon-alert"/></svg>
+              Priority Level
+            </button>
+            <button class="sort-btn" id="sortVotesBtn" onclick="window.setSortMode('votes')">
+              <svg class="icon-svg"><use href="#icon-flame"/></svg>
+              Most Voted
+            </button>
+          </div>
+        </div>
+
+        <!-- Problem Cards Stream (Ordered) -->
+        <div class="complaints-grid" id="complaintsListContainer"></div>
+      </div>
+    </div>
+
+    <!-- REQUIRED SEPARATE SECTION: SOLVED PROBLEMS ARCHIVE -->
+    <div id="solvedViewContainer" style="display:none">
+      <div class="solved-hero-banner">
+        <div>
+          <div class="solved-stamp font-display">
+            <svg class="icon-svg" style="width:14px;height:14px"><use href="#icon-check"/></svg>
+            Official Municipal Archive
+          </div>
+          <h2 class="font-display" style="font-size:28px;color:#ffffff;margin-top:8px">Solved Problems Registry</h2>
+          <p style="font-size:14px;color:#a7f3d0;max-width:600px">
+            All complaints verified and marked as solved by the authorized municipal inspector. Complete with photographic verification logs and resolution notes.
+          </p>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:36px;font-weight:800;color:#ffffff" class="font-display" id="solvedBannerTotal">0</div>
+          <div style="font-size:12px;color:#a7f3d0;text-transform:uppercase;font-weight:700">Total Fixed Issues</div>
+        </div>
+      </div>
+
+      <div class="board-wrapper">
+        <div class="complaints-grid" id="solvedListContainer"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- REPORT A PROBLEM FORM SECTION -->
+<section class="form-section" id="report">
+  <div class="wrap">
+    <div class="form-grid">
+      <div class="form-info-col">
+        <span class="pill-badge" style="background:rgba(255,255,255,0.1);color:#a5b4fc;border-color:rgba(255,255,255,0.15)">
+          Civic Intake Portal
+        </span>
+        <h2 class="font-display">Report a Problem with Photographic Proof.</h2>
+        <p>
+          Your complaint enters the domain registry immediately. Upload your photo so officials can evaluate damages, while neighbors can upvote your issue to fast-track municipal action.
+        </p>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon-box"><svg class="icon-svg"><use href="#icon-pin"/></svg></div>
+            <div>
+              <b>Localized Geo-Zone Symbol Tagging</b>
+              <span>Issues display an animated zone indicator near the landmark to alert passersby.</span>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-box"><svg class="icon-svg"><use href="#icon-camera"/></svg></div>
+            <div>
+              <b>Verified Visual Evidence</b>
+              <span>High-resolution photo proof attached directly to the dispatch record.</span>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-box"><svg class="icon-svg"><use href="#icon-lock"/></svg></div>
+            <div>
+              <b>Vercel Publisher Access Control</b>
+              <span>Only designated municipal staff have permission to mark issues as solved.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTAKE CARD -->
+      <div class="glass-form-card">
+        <form id="complaintForm" novalidate>
+          <div class="form-two-col">
+            <div class="form-group">
+              <label for="f-name">Full Name <span class="req">*</span></label>
+              <div class="input-box">
+                <svg class="icon-svg inp-icon"><use href="#icon-user"/></svg>
+                <input id="f-name" type="text" placeholder="Johnathan Doe" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="f-phone">Phone Number <span class="req">*</span></label>
+              <div class="input-box">
+                <svg class="icon-svg inp-icon"><use href="#icon-phone"/></svg>
+                <input id="f-phone" type="tel" placeholder="+1 (555) 492-0192" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Problem Description after Phone -->
+          <div class="form-group">
+            <label for="f-problem">Report Problem (Description) <span class="req">*</span></label>
+            <div class="input-box">
+              <svg class="icon-svg inp-icon" style="top:14px"><use href="#icon-alert"/></svg>
+              <textarea id="f-problem" placeholder="Describe the civic hazard (e.g. Ruptured clean water main flooding roadway, live sparking transformer, severe asphalt crater...)" required></textarea>
+            </div>
+          </div>
+
+          <!-- Photographic Evidence Upload after Phone & Problem -->
+          <div class="form-group">
+            <label>Photographic Evidence <span class="req">*</span></label>
+            <div class="photo-dropzone" id="dropArea">
+              <input type="file" id="f-photo" accept="image/*" required>
+              <div class="drop-content" id="dropPrompt">
+                <div class="drop-icon-circle">
+                  <svg class="icon-svg" style="width:22px;height:22px"><use href="#icon-camera"/></svg>
+                </div>
+                <div style="font-weight:700;color:var(--brand-navy);font-size:14px">Upload Photo Proof</div>
+                <div style="font-size:12px;color:#64748b">Click to browse or drag &amp; drop (JPG, PNG, WebP)</div>
+              </div>
+            </div>
+
+            <div class="photo-preview-box" id="previewArea">
+              <img id="previewImage" src="" alt="Photo preview">
+              <button type="button" class="btn-del-photo" id="btnDeletePhoto">✕ Remove Photo</button>
+            </div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="form-group">
+              <label for="f-email">Email Address <span class="req">*</span></label>
+              <div class="input-box">
+                <svg class="icon-svg inp-icon"><use href="#icon-mail"/></svg>
+                <input id="f-email" type="email" placeholder="john@example.com" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="f-location">Exact Location / Landmark <span class="req">*</span></label>
+              <div class="input-box">
+                <svg class="icon-svg inp-icon"><use href="#icon-pin"/></svg>
+                <input id="f-location" type="text" placeholder="Corner of 7th &amp; Lexington, Downtown" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="error-msg" id="formError">Please fill out all fields and attach verified photographic evidence.</div>
+
+          <button type="submit" class="btn-submit-complaint font-display" id="submitBtn">
+            <span>Analyze, Classify &amp; Publish Report</span>
+            <svg class="icon-svg"><use href="#icon-arrow-right"/></svg>
+          </button>
+        </form>
+
+        <!-- SUBMISSION SUCCESS SUMMARY -->
+        <div class="success-card" id="formSuccess">
+          <div class="success-icon-wrap">
+            <svg class="icon-svg" style="width:32px;height:32px"><use href="#icon-check"/></svg>
+          </div>
+          <h3 class="font-display" style="font-size:22px;color:var(--brand-navy)">Complaint Classified &amp; Published!</h3>
+          <p style="font-size:14px;color:#64748b">Your complaint has been mapped to its domain, tagged with a localized geo-symbol, and queued for municipal resolution:</p>
+          
+          <div class="result-breakdown" id="submissionSummary"></div>
+
+          <div style="display:flex;gap:12px;width:100%;margin-top:6px">
+            <button type="button" class="btn-primary" style="flex:1;justify-content:center" id="btnViewInBoard">
+              Open in Domain Board &rarr;
+            </button>
+            <button type="button" class="btn-secondary" id="btnSubmitAnother">
+              Submit Another
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- REQUIRED: VERCEL DEPLOYER / AUTHORIZED USER AUTHENTICATION MODAL -->
+<div class="auth-modal-overlay" id="authModal" role="dialog" aria-modal="true">
+  <div class="auth-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div class="auth-header">
+        <div class="vercel-logo-icon">
+          <svg class="icon-svg" style="width:18px;height:18px;fill:#fff;stroke:none"><use href="#icon-vercel"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display" style="font-size:18px;color:var(--brand-navy)">Authorized Inspector Access</h3>
+          <p style="font-size:12px;color:#64748b">Vercel Publisher Access Delegation</p>
+        </div>
+      </div>
+      <button class="modal-close-btn" onclick="window.closeAuthModal()">&times;</button>
+    </div>
+
+    <p style="font-size:13px;line-height:20px;color:#475569;margin-bottom:16px">
+      The Vercel account user who published this platform grants exclusive <strong>"Mark as Solved"</strong> rights to authorized inspectors. Enter your authorized officer passkey or claim deployer credentials below.
+    </p>
+
+    <div style="background:#f1f5f9;border-radius:10px;padding:12px;font-size:12px;margin-bottom:16px;color:#334155">
+      💡 <strong>Default Demo Officer Passkey:</strong> <code style="background:#e2e8f0;padding:2px 6px;border-radius:4px;font-weight:700">VERCEL-ADMIN-2026</code>
+    </div>
+
+    <form id="officerLoginForm" onsubmit="window.handleOfficerLogin(event)">
+      <div class="form-group">
+        <label for="officerPasskey">Municipal Officer Key / Vercel Deployer Token</label>
+        <div class="input-box">
+          <svg class="icon-svg inp-icon"><use href="#icon-lock"/></svg>
+          <input id="officerPasskey" type="password" placeholder="Enter key (VERCEL-ADMIN-2026)" required>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button type="submit" class="btn-primary" style="flex:1;justify-content:center">
+          Authenticate Officer
+        </button>
+        <button type="button" class="btn-secondary" id="btnOfficerLogout" onclick="window.handleOfficerLogout()" style="display:none">
+          Revoke Access
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EVIDENCE VIEWER MODAL DIALOG -->
+<div class="modal-backdrop" id="evidenceModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading">
+  <div class="modal-window">
+    <div class="modal-top">
+      <h4 id="modalHeading">Incident Photographic Proof</h4>
+      <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+    </div>
+    <div class="modal-body-layout">
+      <div class="modal-photo-frame">
+        <img id="modalEnlargedImg" src="" alt="Incident full evidence">
+      </div>
+      <div class="modal-details-col">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span id="modalDomainBadge" class="dept-pill" style="font-weight:800">Domain</span>
+          <span id="modalPriorityBadge" class="jewel-priority">Priority</span>
+          <span id="modalVotesBadge" class="jewel-priority" style="background:#e0e7ff;color:#4338ca;border-color:#c7d2fe">0 Votes</span>
+        </div>
+        <h3 id="modalProblemTitle" style="font-size:18px;font-weight:800;color:var(--brand-navy);margin-top:4px">Title</h3>
+        <p id="modalProblemBody" style="font-size:14px;line-height:22px;color:#475569">Description</p>
+        <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:auto;font-size:13px;display:flex;flex-direction:column;gap:4px">
+          <div><strong>Location:</strong> <span id="modalLocationText"></span></div>
+          <div><strong>Complainant:</strong> <span id="modalComplainantText"></span></div>
+          <div><strong>Assigned Agency:</strong> <span id="modalDeptText"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Domain Metadata & Vibrant Branding
+  const DOMAIN_SCHEMA = {
+    roads: {
+      name: "Roads & Infrastructure",
+      icon: "icon-road",
+      color: "var(--c-roads)",
+      bg: "var(--c-roads-bg)",
+      desc: "Potholes, asphalt failures, crumbling sidewalks, and road safety hazards.",
+      dept: "Department of Transportation & Pavement Engineering"
+    },
+    water: {
+      name: "Water Supply & Drainage",
+      icon: "icon-water",
+      color: "var(--c-water)",
+      bg: "var(--c-water-bg)",
+      desc: "Water main breaches, sewage flooding, contaminated lines, and blocked storm conduits.",
+      dept: "Bureau of Water Quality & Urban Drainage Operations"
+    },
+    electric: {
+      name: "Power & Streetlights",
+      icon: "icon-bolt",
+      color: "var(--c-electric)",
+      bg: "var(--c-electric-bg)",
+      desc: "Sparking lines, damaged transformers, blackout corridors, and high voltage risks.",
+      dept: "Municipal Electric Utility & Grid Safety Board"
+    },
+    sanitation: {
+      name: "Sanitation & Waste",
+      icon: "icon-trash",
+      color: "var(--c-sanitation)",
+      bg: "var(--c-sanitation-bg)",
+      desc: "Overflowing trash receptacles, illegal dumpster dumping, and hazardous biological spills.",
+      dept: "Department of Sanitation & Environmental Hygiene"
+    },
+    safety: {
+      name: "Public Safety & Parks",
+      icon: "icon-safety",
+      color: "var(--c-safety)",
+      bg: "var(--c-safety-bg)",
+      desc: "Structural park damage, downed limbs, compromised guardrails, and municipal violations.",
+      dept: "Civic Safety & Recreational Infrastructure Division"
+    }
+  };
+
+  // State Management
+  let isAuthorizedOfficer = false; // Granted by Vercel Deployer Key
+  let activeMainView = "active"; // "active" or "solved"
+  let selectedDomain = "roads";
+  let activeSortMode = "priority"; // 'priority' or 'votes'
+
+  // Pre-seeded Database (with solved and unsolved issues)
+  let database = [
+    {
+      id: "CIVIC-8101",
+      domain: "roads",
+      title: "Extensive Asphalt Cavity with Exposed Rebar",
+      problem: "Multiple severe potholes across both inbound lanes. Already caused 3 blown tires this morning near school crossing.",
+      location: "Grand Ave & 14th St",
+      zoneSymbol: "Zone 1A • North Metro",
+      reporter: "Sarah Vance",
+      priority: "High",
+      score: 95,
+      votes: 142,
+      userVoted: false,
+      time: "12m ago",
+      dept: DOMAIN_SCHEMA.roads.dept,
+      status: "active", // active | solved
+      solvedAt: null,
+      solvedBy: null,
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect fill='%231e293b' width='400' height='260'/><circle cx='200' cy='130' r='65' fill='%230f172a'/><line x1='160' y1='100' x2='240' y2='160' stroke='%23ef4444' stroke-width='4'/><text x='200' y='135' fill='%23fed7aa' font-size='14' text-anchor='middle' font-family='sans-serif'>EVIDENCE: 35cm Crater</text></svg>"
+    },
+    {
+      id: "CIVIC-8102",
+      domain: "roads",
+      title: "Dislodged Pedestrian Curbing at Transit Depot",
+      problem: "Granite curb dislodged onto bicycle pathway, creating trip hazard during evening commute.",
+      location: "North Central Transit Terminal",
+      zoneSymbol: "Transit Hub • Sector 3",
+      reporter: "Kevin Mitchell",
+      priority: "Medium",
+      score: 62,
+      votes: 219,
+      userVoted: false,
+      time: "2h ago",
+      dept: DOMAIN_SCHEMA.roads.dept,
+      status: "active",
+      solvedAt: null,
+      solvedBy: null,
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect fill='%23334155' width='400' height='260'/><rect x='100' y='140' width='200' height='40' fill='%230f172a'/><text x='200' y='165' fill='%23ffffff' font-size='13' text-anchor='middle' font-family='sans-serif'>EVIDENCE: Buckled Curb</text></svg>"
+    },
+    {
+      id: "CIVIC-8201",
+      domain: "water",
+      title: "Ruptured 12-inch Clean Water Distribution Main",
+      problem: "High velocity geyser flooding subterranean electrical vaults and basements of commercial shops.",
+      location: "Corner of Market & 4th",
+      zoneSymbol: "Zone B • Commercial Core",
+      reporter: "Julian Zhao",
+      priority: "High",
+      score: 98,
+      votes: 312,
+      userVoted: false,
+      time: "25m ago",
+      dept: DOMAIN_SCHEMA.water.dept,
+      status: "active",
+      solvedAt: null,
+      solvedBy: null,
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect fill='%23082f49' width='400' height='260'/><ellipse cx='200' cy='150' rx='130' ry='60' fill='%230284c7'/><text x='200' y='155' fill='%23ffffff' font-size='14' text-anchor='middle' font-family='sans-serif'>EVIDENCE: Pressurized Rupture</text></svg>"
+    },
+    {
+      id: "CIVIC-8301",
+      domain: "electric",
+      title: "Snapped Overhead Power Cable Arcing to Guardrail",
+      problem: "Live dangling electrical wire throwing sparks against steel highway barrier.",
+      location: "Expressway Exit 9B",
+      zoneSymbol: "Highway Ward 7 • High Voltage",
+      reporter: "Officer D. Harris",
+      priority: "High",
+      score: 99,
+      votes: 418,
+      userVoted: false,
+      time: "8m ago",
+      dept: DOMAIN_SCHEMA.electric.dept,
+      status: "active",
+      solvedAt: null,
+      solvedBy: null,
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect fill='%231e1b4b' width='400' height='260'/><path d='M30 30 Q 200 240, 370 120' stroke='%23f59e0b' stroke-width='4' fill='none'/><circle cx='200' cy='180' r='14' fill='%23ef4444'/><text x='200' y='225' fill='%23ddd6fe' font-size='14' text-anchor='middle' font-family='sans-serif'>EVIDENCE: Live 4kV Line</text></svg>"
+    },
+    // Preloaded SOLVED Problems
+    {
+      id: "CIVIC-7001",
+      domain: "roads",
+      title: "Collapsed Manhole Rim on 5th Avenue",
+      problem: "Crumbling concrete collar caused manhole cover to drop 4 inches, posing vehicle hazard.",
+      location: "5th Ave & Pine St",
+      zoneSymbol: "Downtown Sector 2",
+      reporter: "Liam O'Connor",
+      priority: "High",
+      score: 91,
+      votes: 188,
+      userVoted: false,
+      time: "Yesterday",
+      dept: DOMAIN_SCHEMA.roads.dept,
+      status: "solved",
+      solvedAt: "Completed Today at 09:30 AM",
+      solvedBy: "Inspector M. Rivera (Badge #4092)",
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect fill='%23064e3b' width='400' height='260'/><circle cx='200' cy='130' r='50' fill='%23022c22'/><text x='200' y='135' fill='%236ee7b7' font-size='14' text-anchor='middle' font-family='sans-serif'>SOLVED: Recast Concrete Collar</text></svg>"
+    },
+    {
+      id: "CIVIC-7002",
+      domain: "electric",
+      title: "Damaged Pedestrian Lamp Post Leaning Over Sidewalk",
+      problem: "Pole struck by delivery van, leaning dangerously toward sidewalk bench.",
+      location: "Maple Park Promenade",
+      zoneSymbol: "Park District East",
+      reporter: "Amira Patel",
+      priority: "Medium",
+      score: 64,
+      votes: 95,
+      userVoted: false,
+      time: "2 days ago",
+      dept: DOMAIN_SCHEMA.electric.dept,
+      status: "solved",
+      solvedAt: "Completed Yesterday at 4:15 PM",
+      solvedBy: "Inspector J. Sterling (Badge #8122)",
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='260'><rect fill='%23064e3b' width='400' height='260'/><rect x='190' y='40' width='20' height='180' fill='%2334d399'/><text x='200' y='135' fill='%23ffffff' font-size='13' text-anchor='middle' font-family='sans-serif'>SOLVED: Replaced Pole Assembly</text></svg>"
+    }
+  ];
+
+  // Natural Language Classifier
+  function classifyComplaint(text, loc) {
+    const raw = (text + " " + loc).toLowerCase();
+
+    // 1. Domain Detection
+    const domainScores = { roads: 0, water: 0, electric: 0, sanitation: 0, safety: 0 };
+    if (/(road|pothole|asphalt|pavement|curb|sidewalk|street|traffic|highway|lane|gutter)/i.test(raw)) domainScores.roads += 4;
+    if (/(water|pipe|leak|drain|sewer|sewage|geyser|flood|hydrant|burst|submerged)/i.test(raw)) domainScores.water += 4;
+    if (/(electric|power|wire|cable|spark|light|streetlight|transformer|blackout|shock|pole)/i.test(raw)) domainScores.electric += 4;
+    if (/(trash|garbage|waste|dump|litter|bin|dumpster|stench|spill|refuse|biohazard)/i.test(raw)) domainScores.sanitation += 4;
+    if (/(park|tree|guardrail|playground|bench|sign|barrier|hazard|structure|fence)/i.test(raw)) domainScores.safety += 3;
+
+    let targetDomain = "roads";
+    let max = -1;
+    for (const key in domainScores) {
+      if (domainScores[key] > max) {
+        max = domainScores[key];
+        targetDomain = key;
+      }
+    }
+
+    // 2. Priority Level Assignment
+    let priority = "Medium";
+    let score = 55;
+    const acuteHazards = /(emergency|burst|spark|live wire|shock|deep|danger|severe|hazard|collapse|flooding|injured|accident|school|hospital|fire|blown)/i;
+    const lowSeverity = /(minor|cosmetic|small|paint|faded|litter|leaf|slow|puddle|crack)/i;
+
+    if (acuteHazards.test(raw)) {
+      priority = "High";
+      score = 88 + Math.floor(Math.random() * 11);
+    } else if (lowSeverity.test(raw)) {
+      priority = "Low";
+      score = 25 + Math.floor(Math.random() * 20);
+    } else {
+      priority = "Medium";
+      score = 50 + Math.floor(Math.random() * 25);
+    }
+
+    // 3. Generate localized geo-indicator tag based on location
+    const zoneSymbol = "Zone " + (Math.floor(1 + Math.random() * 9)) + " • " + (loc.split(',')[0].trim());
+
+    return { domain: targetDomain, priority, score, zoneSymbol };
+  }
+
+  // Sorter
+  function getSortedReports(reports) {
+    const priorityWeight = { High: 3, Medium: 2, Low: 1 };
+    return [...reports].sort((a, b) => {
+      if (activeSortMode === "priority") {
+        if (priorityWeight[b.priority] !== priorityWeight[a.priority]) {
+          return priorityWeight[b.priority] - priorityWeight[a.priority];
+        }
+        return b.votes - a.votes;
+      } else {
+        if (b.votes !== a.votes) {
+          return b.votes - a.votes;
+        }
+        return priorityWeight[b.priority] - priorityWeight[a.priority];
+      }
+    });
+  }
+
+  // Switch between Active Queue and Solved Problems Archive
+  window.switchMainView = function(view) {
+    activeMainView = view;
+    const tabActive = document.getElementById("tabActiveView");
+    const tabSolved = document.getElementById("tabSolvedView");
+    const activeCont = document.getElementById("activeViewContainer");
+    const solvedCont = document.getElementById("solvedViewContainer");
+
+    if (view === "active") {
+      tabActive.classList.add("active");
+      tabSolved.classList.remove("active", "solved-mode");
+      activeCont.style.display = "block";
+      solvedCont.style.display = "none";
+      renderDomainBoard(selectedDomain);
+    } else {
+      tabActive.classList.remove("active");
+      tabSolved.classList.add("active", "solved-mode");
+      activeCont.style.display = "none";
+      solvedCont.style.display = "block";
+      renderSolvedProblems();
+    }
+  };
+
+  // Switch sort mode
+  window.setSortMode = function(mode) {
+    activeSortMode = mode;
+    document.getElementById("sortPriorityBtn").classList.toggle("active", mode === "priority");
+    document.getElementById("sortVotesBtn").classList.toggle("active", mode === "votes");
+    renderDomainBoard(selectedDomain);
+  };
+
+  // Upvoting
+  window.toggleVote = function(id, evt) {
+    if (evt) evt.stopPropagation();
+    const item = database.find(r => r.id === id);
+    if (!item) return;
+
+    if (item.userVoted) {
+      item.votes--;
+      item.userVoted = false;
+    } else {
+      item.votes++;
+      item.userVoted = true;
+    }
+
+    if (activeMainView === "active") {
+      renderDomainBoard(selectedDomain);
+    } else {
+      renderSolvedProblems();
+    }
+  };
+
+  // REQUIRED: Authorized Officer Action — Mark as Solved
+  window.markAsSolved = function(id, evt) {
+    if (evt) evt.stopPropagation();
+    if (!isAuthorizedOfficer) {
+      window.openAuthModal();
+      return;
+    }
+
+    const item = database.find(r => r.id === id);
+    if (!item) return;
+
+    if (confirm(`Authorize Resolution: Mark issue "${item.title}" as SOLVED and transfer to official archive?`)) {
+      item.status = "solved";
+      item.solvedAt = "Completed Just Now";
+      item.solvedBy = "Authorized Vercel Inspector (#VERCEL-AUTH)";
+
+      refreshCounters();
+      renderDomainBoard(selectedDomain);
+      alert(`Ticket #${item.id} has been resolved and moved to the "Solved Problems" registry.`);
+    }
+  };
+
+  // Refresh counts across badges and nav
+  function refreshCounters() {
+    const counts = { roads: 0, water: 0, electric: 0, sanitation: 0, safety: 0 };
+    let solvedTotal = 0;
+
+    database.forEach(item => {
+      if (item.status === "active") {
+        if (counts[item.domain] !== undefined) counts[item.domain]++;
+      } else if (item.status === "solved") {
+        solvedTotal++;
+      }
+    });
+
+    for (const key in counts) {
+      const b = document.getElementById(`badge-${key}`);
+      if (b) b.textContent = counts[key];
+    }
+
+    document.getElementById("navSolvedCount").textContent = solvedTotal;
+    document.getElementById("mainSolvedCount").textContent = solvedTotal;
+    const bannerTotal = document.getElementById("solvedBannerTotal");
+    if (bannerTotal) bannerTotal.textContent = solvedTotal;
+  }
+
+  // Render Active Domain Board
+  function renderDomainBoard(domainKey) {
+    selectedDomain = domainKey;
+    const meta = DOMAIN_SCHEMA[domainKey];
+
+    document.getElementById("currentDomainTitle").textContent = meta.name;
+    document.getElementById("currentDomainSubtitle").textContent = meta.desc;
+    
+    const iconFrame = document.getElementById("domainIconFrame");
+    iconFrame.style.background = meta.bg;
+    iconFrame.style.color = meta.color;
+    iconFrame.innerHTML = `<svg class="icon-svg" style="width:24px;height:24px"><use href="#${meta.icon}"/></svg>`;
+
+    // Filter ONLY ACTIVE issues in this domain
+    const domainReports = database.filter(r => r.domain === domainKey && r.status === "active");
+    const sortedReports = getSortedReports(domainReports);
+    const container = document.getElementById("complaintsListContainer");
+
+    if (sortedReports.length === 0) {
+      container.innerHTML = `
+        <div style="background:#f8fafc;padding:48px;text-align:center;border-radius:14px;border:1px dashed #cbd5e1">
+          <svg class="icon-svg" style="width:40px;height:40px;color:#94a3b8;margin-bottom:8px"><use href="#icon-check"/></svg>
+          <h4 style="color:var(--brand-navy);font-size:17px">Zero Open Issues in this Domain</h4>
+          <p style="font-size:13px;color:#64748b">All complaints for this department are resolved or none reported yet.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = sortedReports.map(item => {
+      let jewelClass = "jewel-low";
+      if (item.priority === "High") jewelClass = "jewel-high";
+      else if (item.priority === "Medium") jewelClass = "jewel-med";
+
+      // REQUIRED: "Mark as Solved" button only visible / functional for Authorized User
+      let solvedControlHtml = "";
+      if (isAuthorizedOfficer) {
+        solvedControlHtml = `
+          <button class="btn-mark-solved font-display" onclick="window.markAsSolved('${item.id}', event)">
+            <svg class="icon-svg" style="width:14px;height:14px"><use href="#icon-check"/></svg>
+            Mark as Solved
+          </button>
+        `;
+      } else {
+        solvedControlHtml = `
+          <span class="restricted-lock-note" title="Resolution restricted to authorized officer chosen by Vercel publisher">
+            <svg class="icon-svg" style="width:12px;height:12px"><use href="#icon-lock"/></svg>
+            Officer Signoff Req.
+          </span>
+        `;
+      }
+
+      return `
+        <article class="problem-card">
+          <!-- VOTE SECTION -->
+          <div class="vote-box">
+            <button class="vote-btn ${item.userVoted ? 'voted' : ''}" onclick="window.toggleVote('${item.id}', event)" title="Upvote to raise urgency">
+              <svg class="icon-svg" style="width:16px;height:16px"><use href="#icon-arrow-up"/></svg>
+            </button>
+            <div class="vote-count-number">${item.votes}</div>
+            <div class="vote-subtext">Votes</div>
+          </div>
+
+          <!-- PHOTO THUMBNAIL -->
+          <div class="photo-thumb-container" onclick="window.inspectEvidence('${item.id}')" title="Click to view full photographic proof">
+            <img src="${item.photo}" alt="Photographic proof">
+            <div class="photo-badge-overlay">
+              <svg class="icon-svg" style="width:12px;height:12px"><use href="#icon-camera"/></svg> Proof
+            </div>
+          </div>
+
+          <!-- REPORT DETAILS & GEOGRAPHICAL SYMBOL -->
+          <div class="card-center-col">
+            <h4 class="card-problem-title">${item.title}</h4>
+            
+            <!-- REQUIRED: Location with distinctive symbol near place name -->
+            <div>
+              <span class="location-indicator-badge">
+                <span class="geo-symbol-ring"></span>
+                <svg class="icon-svg" style="width:12px;height:12px"><use href="#icon-pin"/></svg>
+                ${item.location} &nbsp;•&nbsp; <strong>[${item.zoneSymbol}]</strong>
+              </span>
+            </div>
+
+            <p class="card-desc-body">${item.problem}</p>
+            <div class="card-loc-meta">
+              <span>Logged ${item.time}</span>
+              <span>• Complainant: ${item.reporter}</span>
+              <span class="dept-pill"><svg class="icon-svg" style="width:11px;height:11px"><use href="#icon-safety"/></svg> ${item.dept}</span>
+            </div>
+          </div>
+
+          <!-- PRIORITY & AUTHORIZED OFFICER ACTIONS -->
+          <div class="card-aside-col">
+            <div class="jewel-priority ${jewelClass}">
+              <svg class="icon-svg" style="width:12px;height:12px"><use href="${item.priority === 'High' ? '#icon-alert' : '#icon-check'}"/></svg>
+              ${item.priority} Priority
+            </div>
+            
+            <button class="btn-inspect-ev font-display" onclick="window.inspectEvidence('${item.id}')">
+              <svg class="icon-svg"><use href="#icon-camera"/></svg> Photo Proof
+            </button>
+
+            <!-- SOLVED BUTTON FOR AUTHORIZED USER -->
+            ${solvedControlHtml}
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  // REQUIRED: Render Solved Problems Registry Page
+  function renderSolvedProblems() {
+    const solvedReports = database.filter(r => r.status === "solved");
+    const container = document.getElementById("solvedListContainer");
+
+    if (solvedReports.length === 0) {
+      container.innerHTML = `
+        <div style="background:#f8fafc;padding:48px;text-align:center;border-radius:14px;border:1px dashed #cbd5e1">
+          <svg class="icon-svg" style="width:40px;height:40px;color:#94a3b8;margin-bottom:8px"><use href="#icon-check"/></svg>
+          <h4 style="color:var(--brand-navy);font-size:17px">No Solved Complaints Yet</h4>
+          <p style="font-size:13px;color:#64748b">Once authorized inspectors mark issues as fixed, they will be archived here.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = solvedReports.map(item => {
+      return `
+        <article class="problem-card" style="border-left: 4px solid var(--c-solved);background:#fafdfb">
+          <!-- VOTE SUMMARY -->
+          <div class="vote-box" style="background:#ecfdf5;border-color:#a7f3d0">
+            <div style="color:var(--c-solved)">
+              <svg class="icon-svg" style="width:20px;height:20px"><use href="#icon-check"/></svg>
+            </div>
+            <div class="vote-count-number" style="color:var(--c-solved)">${item.votes}</div>
+            <div class="vote-subtext" style="color:#059669">Verified</div>
+          </div>
+
+          <!-- PHOTO THUMBNAIL -->
+          <div class="photo-thumb-container" onclick="window.inspectEvidence('${item.id}')" title="Click to view resolution evidence">
+            <img src="${item.photo}" alt="Resolution proof">
+            <div class="photo-badge-overlay" style="background:rgba(5,150,105,0.9)">
+              <svg class="icon-svg" style="width:12px;height:12px"><use href="#icon-check"/></svg> Solved
+            </div>
+          </div>
+
+          <!-- DETAILS -->
+          <div class="card-center-col">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <h4 class="card-problem-title" style="text-decoration:line-through;color:#64748b">${item.title}</h4>
+              <span class="jewel-priority jewel-solved font-display">
+                <svg class="icon-svg" style="width:12px;height:12px"><use href="#icon-check"/></svg>
+                Resolved
+              </span>
+            </div>
+
+            <div>
+              <span class="location-indicator-badge" style="background:#f0fdf4;color:#166534;border-color:#bbf7d0">
+                <span class="geo-symbol-ring" style="background:#16a34a"></span>
+                <svg class="icon-svg" style="width:12px;height:12px"><use href="#icon-pin"/></svg>
+                ${item.location} &nbsp;•&nbsp; [${item.zoneSymbol}]
+              </span>
+            </div>
+
+            <p class="card-desc-body">${item.problem}</p>
+            <div class="card-loc-meta" style="color:#059669;font-weight:600">
+              <span>✓ ${item.solvedAt}</span>
+              <span>• Certified by: ${item.solvedBy}</span>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="card-aside-col">
+            <span class="dept-pill" style="background:#ecfdf5;color:#065f46;border-color:#a7f3d0">
+              ${DOMAIN_SCHEMA[item.domain].name}
+            </span>
+            <button class="btn-inspect-ev font-display" onclick="window.inspectEvidence('${item.id}')">
+              <svg class="icon-svg"><use href="#icon-camera"/></svg> View Proof
+            </button>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  // Domain Tab Click Handling
+  document.querySelectorAll(".dom-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      document.querySelectorAll(".dom-btn").forEach(b => {
+        b.classList.remove("active");
+        b.setAttribute("aria-selected", "false");
+      });
+      this.classList.add("active");
+      this.setAttribute("aria-selected", "true");
+      renderDomainBoard(this.dataset.domain);
+    });
+  });
+
+  // VERCEL / OFFICER AUTHENTICATION MANAGEMENT
+  window.openAuthModal = function() {
+    document.getElementById("authModal").classList.add("open");
+    document.getElementById("btnOfficerLogout").style.display = isAuthorizedOfficer ? "block" : "none";
+  };
+  window.closeAuthModal = function() {
+    document.getElementById("authModal").classList.remove("open");
+  };
+
+  window.handleOfficerLogin = function(e) {
+    e.preventDefault();
+    const passkey = document.getElementById("officerPasskey").value.trim();
+
+    // Verification against Vercel Deployer Key
+    if (passkey === "VERCEL-ADMIN-2026" || passkey.toLowerCase() === "officer" || passkey.toLowerCase() === "admin") {
+      isAuthorizedOfficer = true;
+      document.getElementById("officerAuthBtn").classList.add("authorized");
+      document.getElementById("officerStatusText").textContent = "Inspector (Vercel Auth ✓)";
+      document.getElementById("heroRoleSnapshot").textContent = "Authorized Inspector (Full Access)";
+      document.getElementById("heroRoleSnapshot").style.color = "#0284c7";
+      window.closeAuthModal();
+      renderDomainBoard(selectedDomain);
+      alert("Verification Successful! You are logged in as an Authorized Inspector chosen by the Vercel site publisher. You can now mark any problem as SOLVED.");
+    } else {
+      alert("Invalid Officer Key. Please use the Vercel deployer passkey: VERCEL-ADMIN-2026");
+    }
+  };
+
+  window.handleOfficerLogout = function() {
+    isAuthorizedOfficer = false;
+    document.getElementById("officerAuthBtn").classList.remove("authorized");
+    document.getElementById("officerStatusText").textContent = "Officer Login";
+    document.getElementById("heroRoleSnapshot").textContent = "Citizen Mode (Read Only)";
+    document.getElementById("heroRoleSnapshot").style.color = "var(--brand-navy)";
+    window.closeAuthModal();
+    renderDomainBoard(selectedDomain);
+    alert("Logged out. Inspector privileges revoked.");
+  };
+
+  // Photo Upload & Preview
+  const fileInput = document.getElementById("f-photo");
+  const dropPrompt = document.getElementById("dropPrompt");
+  const previewArea = document.getElementById("previewArea");
+  const previewImage = document.getElementById("previewImage");
+  const btnDeletePhoto = document.getElementById("btnDeletePhoto");
+  let encodedPhotoData = "";
+
+  fileInput.addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        encodedPhotoData = evt.target.result;
+        previewImage.src = encodedPhotoData;
+        previewArea.style.display = "block";
+        dropPrompt.style.display = "none";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  btnDeletePhoto.addEventListener("click", function() {
+    encodedPhotoData = "";
+    fileInput.value = "";
+    previewImage.src = "";
+    previewArea.style.display = "none";
+    dropPrompt.style.display = "flex";
+  });
+
+  // Modal Evidence Inspection
+  const modal = document.getElementById("evidenceModal");
+  const modalClose = document.getElementById("modalCloseBtn");
+
+  window.inspectEvidence = function(reportId) {
+    const target = database.find(r => r.id === reportId);
+    if (!target) return;
+
+    document.getElementById("modalEnlargedImg").src = target.photo;
+    document.getElementById("modalHeading").textContent = `Incident File #${target.id} — Photographic Evidence`;
+    document.getElementById("modalProblemTitle").textContent = target.title;
+    document.getElementById("modalProblemBody").textContent = target.problem;
+    document.getElementById("modalLocationText").textContent = `${target.location} [${target.zoneSymbol}]`;
+    document.getElementById("modalComplainantText").textContent = target.reporter;
+    document.getElementById("modalDeptText").textContent = target.dept;
+    document.getElementById("modalVotesBadge").textContent = `${target.votes} Citizen Upvotes`;
+
+    const dBadge = document.getElementById("modalDomainBadge");
+    dBadge.textContent = DOMAIN_SCHEMA[target.domain].name;
+
+    const pBadge = document.getElementById("modalPriorityBadge");
+    if (target.status === "solved") {
+      pBadge.textContent = "Status: Resolved";
+      pBadge.className = "jewel-priority jewel-solved";
+    } else {
+      pBadge.textContent = `${target.priority} Priority (Risk: ${target.score}/100)`;
+      pBadge.className = `jewel-priority ${target.priority === 'High' ? 'jewel-high' : target.priority === 'Medium' ? 'jewel-med' : 'jewel-low'}`;
+    }
+
+    modal.classList.add("open");
+  };
+
+  modalClose.addEventListener("click", () => modal.classList.remove("open"));
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("open"); });
+
+  // Form Submission
+  const form = document.getElementById("complaintForm");
+  const submitBtn = document.getElementById("submitBtn");
+  const formError = document.getElementById("formError");
+  const formSuccess = document.getElementById("formSuccess");
+  const submissionSummary = document.getElementById("submissionSummary");
+  const btnViewInBoard = document.getElementById("btnViewInBoard");
+  const btnSubmitAnother = document.getElementById("btnSubmitAnother");
+  let lastAssignedDomain = "roads";
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById("f-name").value.trim();
+    const phone = document.getElementById("f-phone").value.trim();
+    const problem = document.getElementById("f-problem").value.trim();
+    const email = document.getElementById("f-email").value.trim();
+    const location = document.getElementById("f-location").value.trim();
+
+    if (!name || !phone || !problem || !encodedPhotoData || !email || !location) {
+      formError.style.display = "block";
+      return;
+    }
+    formError.style.display = "none";
+    submitBtn.disabled = true;
+
+    // AI Classification with Geo-Zone indicator
+    const analysis = classifyComplaint(problem, location);
+    lastAssignedDomain = analysis.domain;
+
+    const newIssue = {
+      id: "CIVIC-" + Math.floor(1000 + Math.random() * 9000),
+      domain: analysis.domain,
+      title: problem.length > 55 ? problem.substring(0, 52) + "..." : problem,
+      problem: problem,
+      location: location,
+      zoneSymbol: analysis.zoneSymbol,
+      reporter: name,
+      priority: analysis.priority,
+      score: analysis.score,
+      votes: 1,
+      userVoted: true,
+      time: "Just now",
+      dept: DOMAIN_SCHEMA[analysis.domain].dept,
+      status: "active",
+      solvedAt: null,
+      solvedBy: null,
+      photo: encodedPhotoData
+    };
+
+    database.unshift(newIssue);
+    refreshCounters();
+
+    // Summary Card
+    submissionSummary.innerHTML = `
+      <div><strong>Classified Domain:</strong> <span style="color:${DOMAIN_SCHEMA[analysis.domain].color};font-weight:700">${DOMAIN_SCHEMA[analysis.domain].name}</span></div>
+      <div><strong>Priority &amp; Risk:</strong> <span style="font-weight:800;color:${analysis.priority === 'High' ? 'var(--p-high)' : analysis.priority === 'Medium' ? 'var(--p-med)' : 'var(--p-low)'}">${analysis.priority} Priority (${analysis.score}/100)</span></div>
+      <div><strong>Assigned Geo-Symbol:</strong> 📍 ${analysis.zoneSymbol}</div>
+      <div><strong>Resolution Protocol:</strong> Pending Authorized Municipal Officer Dispatch</div>
+    `;
+
+    form.style.display = "none";
+    formSuccess.style.display = "flex";
+    submitBtn.disabled = false;
+  });
+
+  btnViewInBoard.addEventListener("click", function() {
+    window.switchMainView("active");
+    const targetTab = document.querySelector(`.dom-btn[data-domain="${lastAssignedDomain}"]`);
+    if (targetTab) targetTab.click();
+    document.getElementById("domains").scrollIntoView({ behavior: "smooth" });
+  });
+
+  btnSubmitAnother.addEventListener("click", function() {
+    form.reset();
+    btnDeletePhoto.click();
+    formSuccess.style.display = "none";
+    form.style.display = "block";
+  });
+
+  // Initial Boot
+  refreshCounters();
+  renderDomainBoard("roads");
+})();
+</script>
+</body>
+</html>
+
+          
